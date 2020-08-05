@@ -59,3 +59,23 @@ BP算法最近同样被用作低级的计算机视觉问题的”引擎“，人
 其中![](https://latex.codecogs.com/svg.latex?Z)为标准化参数，在![](https://latex.codecogs.com/svg.latex?i,j)上的连乘代表在方格上所有相邻的两个节点之间做连乘。
 
 该模型可以表示为图二，其中实心圆代表已知的图像节点![](https://latex.codecogs.com/svg.latex?y_{i})，空心圆代表隐藏的场景节点![](https://latex.codecogs.com/svg.latex?x_{i}),这种马尔科夫随机场之所以被称为成对的（pairwise），就是因为compatibility function 仅仅和在位置上相邻的两个成对的![](https://latex.codecogs.com/svg.latex?i,j)有关。和贝叶斯网络相反，马尔科夫随机场是一个无向图，因此并没有在贝叶斯网络中某变量![](https://latex.codecogs.com/svg.latex?x_{i})是受其相邻的父节点影响的说法，所以在计算中使用compatibility function ![](https://latex.codecogs.com/svg.latex?\psi_{i,j}(x_{i},x_{j}))而不是条件概率![](https://latex.codecogs.com/svg.latex?p(x_{i}|x_{j}))。但是，二者在做推断的步骤上非常相似，都希望对所有的位置![](https://latex.codecogs.com/svg.latex?i)计算其信念（belief）![](https://latex.codecogs.com/svg.latex?b(x_{i}))，然后可以根据belief来推断出图片中隐藏场景的信息。同样的，直接计算所需的时间代价是指数级的，所以才会需要BP一样的快速算法。We note in passing that for a restricted class of pairwise MRF's relevant to computer vision, fast algorithms based on "graph cuts" can also be used to estimate hidden states.
+
+### 1.3 Potts 和 Ising 模型
+
+在这里有必要稍微跑题一下来展示成对MRF是如何被带入到名为“Potts model” 的物理模型中，首先让我们定义一个作用在相邻节点的变量之间的相互作用函数![](https://latex.codecogs.com/svg.latex?J_{i,j}(x_{i},x_{j})=\ln(\psi_{i,j}(x_{i},x_{j})))
+
+和一个作用在诶一个单独节点的场函数![](https://latex.codecogs.com/svg.latex?h_{i}(x_{i})=\ln\phi_{i,j}(x_{i},y_{i}))(因为![](https://latex.codecogs.com/svg.latex?y_{i})是已知的，所以就从场函数中省略了），因此若我们定义Potts模型的能量（Energy）：
+
+![](https://latex.codecogs.com/svg.latex?E({x})=-\sum_{i,j}J_{i,j}(x_{i},x_{j})-\sum_{i}h_{i}(x_{i}))
+
+然后带入到统计力学中的玻尔兹曼法则中（Boltzmann‘s law）：
+
+![](https://latex.codecogs.com/svg.latex?p({x})=\frac{1}{Z}e^{-E(\{x_{i}\})/T})
+
+我们可以看到成对MRF的联合概率分布公式直接对应Potts模型在![](https://latex.codecogs.com/svg.latex?T=1)的情况下的![](https://latex.codecogs.com/svg.latex?p(x)),其中标准化常数![](https://latex.codecogs.com/svg.latex?Z)在物理学中成为配分函数（partition function），若每个节点可能的状态数为2，该模型则被称为Ising模型，在这种情况下，物理学家通常使用取值为1或-1的![](https://latex.codecogs.com/svg.latex?s_{i}) 替代![](https://latex.codecogs.com/svg.latex?x_{i})，并且进一步约束相互作用函数![](https://latex.codecogs.com/svg.latex?J_{i,j})使其成为对称的形式（？）并能够写成“旋转玻璃”(spin glass)能量函数。
+
+![](https://latex.codecogs.com/svg.latex?E({s})=-\sum_{(i,j)}J_{i,j}s_{i}s_{j}-\sum_{i}h_{i}s_{i})
+
+Ising 模型中，对于belief ![](https://latex.codecogs.com/svg.latex?b(x_{i}))的推断可以对应成物理中局部磁化强度（magnetization）的计算。
+
+![](https://latex.codecogs.com/svg.latex?m_{i}\equiv{b}(s_{i}=1)-b(s_{i}=-1))
