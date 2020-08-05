@@ -54,7 +54,7 @@ BP算法最近同样被用作低级的计算机视觉问题的”引擎“，人
 总的说来，我们假设已经观察到一些图像点![](https://latex.codecogs.com/svg.latex?y_{i})的数值，并且我们希望能够推断其他的关于底层场景（underlying scene）![](https://latex.codecogs.com/svg.latex?x_{i})的数值，其中序号![](https://latex.codecogs.com/svg.latex?i) 可以代表单个像素点的位置，也可以代表一个小型像素方块的位置。我们进一步假设在![](https://latex.codecogs.com/svg.latex?x_{i})和![](https://latex.codecogs.com/svg.latex?y_{i})之间在位置i处存在某些统计学关联，并且将这种关联写为函数 ![](https://latex.codecogs.com/svg.latex?\phi_{i}(x_{i},y_{i})) ，
 函数  ![1](https://latex.codecogs.com/svg.latex?\phi_{i}(x_{i},y_{i})) 经常被称为 ![](https://latex.codecogs.com/svg.latex?x_{i}) 的证据（evidence），最后，为了让我们能够推断场景中的任意事物，![](https://latex.codecogs.com/svg.latex?x_{i}) 之间一定存在某种结构，总的来说，如果我们不对这样一种结构作出假设，计算接视觉问题就是 inherently hopelessly ill-posed。我们假设节点![](https://latex.codecogs.com/svg.latex?i) 被放置在一个二维的网格中，就此而言，单个的节点![](https://latex.codecogs.com/svg.latex?x_{i}) 应当和周围的其他节点![](https://latex.codecogs.com/svg.latex?x_{j})互相“兼容”，可以表示为compatibility function ![](https://latex.codecogs.com/svg.latex?\psi_{i,j}(x_{i},x_{j})) ，其中![](https://latex.codecogs.com/svg.latex?\psi_{i,j}) 仅仅链接网格中相邻的位置。则，我们可以关于![](https://latex.codecogs.com/svg.latex?x_{i})和![](https://latex.codecogs.com/svg.latex?y_{i})的联合概率表示为：
 
-![2](https://latex.codecogs.com/svg.latex?p({x},{y}=\frac{1}{Z}\prod_{(ij)}\psi_{ij}(x_{i},x_{j})\prod_{i}\phi_{i}(x_{i},y_{i}))
+![2](https://latex.codecogs.com/svg.latex?p({x},{y}=\frac{1}{Z}\prod_{(ij)}\psi_{ij}(x_{i},x_{j})\prod_{i}\phi_{i}(x_{i},y_{i})))
 
 其中![](https://latex.codecogs.com/svg.latex?Z)为标准化参数，在![](https://latex.codecogs.com/svg.latex?i,j)上的连乘代表在方格上所有相邻的两个节点之间做连乘。
 
