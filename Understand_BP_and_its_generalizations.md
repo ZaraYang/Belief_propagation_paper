@@ -79,3 +79,32 @@ BP算法最近同样被用作低级的计算机视觉问题的”引擎“，人
 Ising 模型中，对于belief ![](https://latex.codecogs.com/svg.latex?b(x_{i}))的推断可以对应成物理中局部磁化强度（magnetization）的计算。
 
 ![](https://latex.codecogs.com/svg.latex?m_{i}\equiv{b}(s_{i}=1)-b(s_{i}=-1))
+
+
+### 1.4 Tanner图和factor图
+
+另一个BP算法成功应用的例子是纠错码（error-correcting codes）的迭代解码。BP算法作为很多最佳编码的解码器，其中就包括turbocodes和Gallager codes。对于纠错码的解码是推断问题的一个优雅（elegant）的例子，接收器接收到已经被有噪声的信道影响过的信息并且试图推断最初的信息。
+
+Gallager编码和tuubo编码可以被归类为部分验证编码（parity-check codes），在部分验证编码中我们通常在N比特信息块（block）中包含k比特的信息，其中N大于k的部分为可以被用作修复误差的冗余信息，。让我们试一个简单的例子：一个 N = 6,k = 3 的二元编码，可以表示成图三一样的Tanner图。
+
+Tanner图是纠错码中编码部分验证约束的图形化表现（pictorial represantation of the parity-check constraints on codewords），图中每一个方块代表一次parity-check，每一个和方块相连的圆圈代表着参与对应parity-check的1比特信息。在我们的例子中，第一个parity-check 将 #1 加 #2 的值赋予 #4，第二次parity-check将 #1 加 #3 的值赋予 #5 ，第三次将#2 加 #3 的值赋予 #6 ，满足这些规则的编码只有八组，000000,001011,010101,011110,100110,101101,110011和111000，在这个例子中，前三位编码即为想要发送的信息正文（例如：010），剩余的三位则是由信息正文唯一决定的（010101）。
+
+在接受这些信息时，传输的信息已经被带有噪声的传输信道影响，经常会发现接收到的信息不符合前面所述的编码规则，例如假设最初发送的信息为010101，但是由于传输信道中噪声的影响，信息中其中1比特发生了变化，因此接收到的信息变为011101，接收到的信息不符合设定的编码规则，就需要解码算法（decoding algorithm）来推断最初的信息。在我们的例子中，编码010101是仅有的只需发生一次变化就会生成接受信息的代码，所以当发生错误的概率很低时，有充分的理由将其解码为010101。但不幸的是，在很多的情况中，N和k的数值会很大，所以在解码过程中可能的密文是指数级增加的，我们无法保存每一种可能性并逐个检查并找到和接收到的编码最接近的一个。至此我们又陷入到了熟悉的情况，我们可以利用BP算法，应为其工作时间仅会随着N的增加线性增加。
+
+ 从解码问题可以总结出一个概率公式，我们假设我们已经收到了一个N比特的序列![](https://latex.codecogs.com/svg.latex?y_{i})，并且我们试图找出N比特的发送码![](https://latex.codecogs.com/svg.latex?x_{i})。为了简化问题，让我们假设噪声信道是“无记忆”（memoryless）的，即每个某个比特的数据出错是独立于其他比特的。这代表着我们可以将条件概率![](https://latex.codecogs.com/svg.latex?p(x_{i}|y_{i}))和接受编码中对应的比特联系起来（associate a conditional probability![](https://latex.codecogs.com/svg.latex?p(x_{i}|y_{i}))  with each receieved bit）。例如，如果接收到的第一比特的信息为0，则我们知道它有![](https://latex.codecogs.com/svg.latex?f)的概率在传输过程中出错，则对应的发送码为0的概率为![](https://latex.codecogs.com/svg.latex?1-f)，对应的发送码为1的概率就为![](https://latex.codecogs.com/svg.latex?f)。因此![](https://latex.codecogs.com/svg.latex?p(x_{1}=0|y_{i}=0)=(1-f))，![](https://latex.codecogs.com/svg.latex?p(x_{1}=1|y_{i}=0)=f)，每个编码总体的概率正比于单个比特概率的乘积![](https://latex.codecogs.com/svg.latex?\prod_{i=1}^{N}p(x_{i}|y_{i}))。但是确保我们只考虑那些符合编码规则的编码（make sure that we only consider combinations of xi that are codewords）。我们将这些条件概率的乘积和parity check的限制写成联合概率，例如，在N=6和k=3的情况下，联合概率可以写为：
+
+![](https://latex.codecogs.com/svg.latex?p(\{x\},\{y\})=\frac{1}{Z}\psi_{124}(x_{1},x_{2},x_{4})\psi_{135}(x_{1},x_{3},x_{5})\psi_{135}(x_{2},x_{3},x_{6})\prod_{i=1}^{6}p(x_{i}|y_{i}))
+
+在上面的公式中![](https://latex.codecogs.com/svg.latex?\psi_{124}(x_{1},x_{2},x_{4}))parity check函数，在参数相加为奇数时为1，偶数为0。
+
+总的说来，对于一个发送码为![](https://latex.codecogs.com/svg.latex?x_{i})接受码为![](https://latex.codecogs.com/svg.latex?y_{i})，N-k parity check的部分检查码来说，其联合概率可以写为：
+
+![](https://latex.codecogs.com/svg.latex?p(\{x\},\{y\})=\frac{1}{Z}\prod_{a=1}^{N-k}\psi_{a}(\{x\}_{a})\prod_{i=1}^{6}p(x_{i}|y_{i}))
+
+其中，![](https://latex.codecogs.com/svg.latex?\psi_{a}(\{x\}_{a}))代表第![](https://latex.codecogs.com/svg.latex?a)次parity check 函数![](https://latex.codecogs.com/svg.latex?\psi_{a})和它的参数![](https://latex.codecogs.com/svg.latex?\{x\}_{a})。
+
+parity check编码的优化算法会将错误解码的次数减到最低，其对每一个![](https://latex.codecogs.com/svg.latex?i)计算边缘概率![](https://latex.codecogs.com/svg.latex?p(x_{i}))，然后将该位置的接收编码改为边缘概率最大的编码。将对每个比特独立的改为边缘概率最大的编码是可以将错误编码数量减到最低的一种策略，尽管有可能会生成无效的解码。
+
+同样的，直接计算存在指数复杂度的问题，要借助BP算法，无论是Galager code还是turbocode，都十分的高效，并且使传输接近香农极限。
+
+因子图是Tanner图的拓展，从图形上看完全相同，但是在因子图中方块可以代表其相连参数的任意函数，每个函数的参数数量不做限制
